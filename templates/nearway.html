@@ -1,0 +1,234 @@
+{% load staticfiles %}
+{% load to_integer %}
+<!DOCTYPE html>
+<html>
+<title>App Nearway</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
+<link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+<style>
+    html, body, h1, h2, h3, h4, h5, h6 {
+        font-family: 'Open Sans', sans-serif;
+    }
+
+    .w3-bottombar.border-orange {
+        border-bottom: 6px solid #ef5b37 !important;
+        /* color: black; */
+    }
+
+    .logo {
+        width: 20%;
+    }
+
+    .bar {
+        padding: 20px;
+        text-align: center;
+    }
+
+    .dashboard:hover {
+        background-color: #ef6c4c !important;
+        color: #ffffff !important;
+    }
+
+</style>
+<!-- body class= "w3-light-grey" -->
+<body class="">
+
+<!-- Top container -->
+<div class="w3-bar bar" style="background-color: #FFFFFF">
+    <img src="/static/img/nearway-logo.png" class="logo" alt="Nearway">
+</div>
+
+<!-- Sidebar/menu -->
+<nav class="w3-sidebar w3-collapse  w3-animate-left" style="z-index:3;width:300px; background-color:#ffffff"
+     id="mySidebar"><br>
+    <div class="w3-container w3-row">
+        <div class="w3-col s4">
+
+        </div>
+    </div>
+    <hr>
+    <div class="w3-container">
+        <h5><font color=#ef6543>Dashboard</font></h5>
+    </div>
+    <div class="w3-bar-block">
+        <a href="#" class="w3-bar-item w3-button w3-padding-16 w3-hide-large w3-dark-grey w3-hover-black"
+           onclick="w3_close()" title="close menu"><i class="fa fa-remove fa-fw"></i>  Close Menu</a>
+        <a href="#" class="w3-bar-item w3-button w3-padding dashboard" style="color:#666666"><i class="fa fa-globe"></i> Geolocalización</a>
+        <a href="{% url 'twitter' %}" class="w3-bar-item w3-button w3-padding  dashboard" style="color:#666666"><i
+                class="fa fa-twitter"></i> Twitter</a>
+    </div>
+</nav>
+
+
+<!-- Overlay effect when opening sidebar on small screens -->
+<div class="w3-overlay w3-hide-large w3-animate-opacity" onclick="w3_close()" style="cursor:pointer"
+     title="close side menu" id="myOverlay"></div>
+
+<!-- !PAGE CONTENT! -->
+<div class="w3-main" style="margin-left:300px;margin-top:3px;">
+
+    <!-- Header -->
+    <header class="w3-container" style="padding-top:22px">
+        <div class="w3-container" style="background-color: #ef5b37">
+            <h5 style="color: white">Buscar sitios cercanos</h5>
+        </div>
+        <br>
+        <h5><b> </b></h5>
+        <form method="POST" action="">
+            {% csrf_token %}
+
+
+            <!-- Búsqueda -->
+            <div class="w3-row-padding ">
+                <div class="w3-third">
+                    <input align="left" class="w3-input w3-border" style="height: 30px; float:right" type="text"
+                           name="textfield" placeholder="Ingrese zona ...">
+                </div>
+                <div class="w3-third">
+                    <input class="w3-input w3-border" style="width:150px; height: 30px; float:left" type="text"
+                           name="text_radio" placeholder="Ingrese radio (mts) ">
+                </div>
+                <button class="w3-btn w3-round" style=" text-align: left; background-color:#d65232; color:white"
+                        name="buscar" type="submit">Buscar
+                </button>
+            </div>
+
+
+            <!-- Check boxs -->
+            <br>
+            <div class="w3-container w3-padding-32"
+                 style="height: 200px; background-color: #222222; align-content: center">
+                <h5 class="w3-bottombar " style="color: #003366"><font color="white">Filtrar por tipo de sitio</font>
+                </h5>
+                <div class="w3-container w3-third"
+                     style="width: 130px; height: 100px; margin-right: auto;">
+
+                    <input name="0" type="checkbox" checked> <font color="white"> Estadios</font>
+                    <br>
+                    <input name="1" type="checkbox" checked> <font color="white"> Hospitales</font>
+                    <br>
+                    <input name="2" type="checkbox" checked> <font color="white"> Iglesias </font>
+
+                </div>
+                <div class="w3-container w3-third"
+                     style="width: 180px; height: 100px; float:left;">
+
+                    <input name="3" type="checkbox" checked><font color="white"> Estación de buses</font>
+                    <br>
+                    <input name="4" type="checkbox" checked><font color="white"> Estación de trenes</font>
+                    <br>
+                    <input name="5" type="checkbox" checked><font color="white"> Cementerios</font>
+
+                </div>
+                <div class="w3-container w3-third"
+                     style="width: 180px; height: 100px; float:left; margin-right: auto;">
+                    <input name="6" type="checkbox" checked><font color="white"> Universidades </font>
+                    <br>
+                    <input name="7" type="checkbox" checked><font color="white"> Colegios </font>
+
+                </div>
+
+
+            </div>
+        </form>
+
+    </header>
+    <!-- Lista de sitios encontrados -->
+    <div class="w3-panel">
+        <div class="w3-row-padding" style="margin:0 -16px">
+            <div class="w3-third">
+
+                {% if list %}
+                    <h5>Sector buscado</h5>
+                    <h6>{{ direction }}</h6>
+                    <br>
+                    <form action="{% url 'export_users_xls' %}" method="post">
+                        {% csrf_token %}
+                        <input class="w3-btn w3-round" style=" text-align: left; background-color:#d65232; color:white"
+                               type="submit" name="descargar" value="Descargar planilla"/>
+                    </form>
+
+                    </div>
+                    <div class="w3-twothird">
+                    <h5>Sitios</h5>
+                    <table class="w3-table w3-striped w3-white">
+                    {% for i in n %}
+                        <tr>
+                            <td>{{ list|lookup:i }}</td>
+                            <td><i class="{{ build_type|lookup:i }}" style=" color: #f36d4d"></i></td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <h5></h5>
+                {% endif %}
+                </table>
+                </div>
+        </div>
+    </div>
+    <div class="w3-container  w3-padding-48" style="background-color: #222222">
+        <div class="w3-row">
+            <div class="w3-container w3-third">
+                <h5 class="w3-bottombar border-orange"></h5>
+                <p><font color="white">Estadios</font> <i class="fa fa-soccer-ball-o fa-2x"
+                                                          style="float:right; color:white"></i></p>
+                <hr>
+                <p><font color="white">Hospitales</font> <i class="fa fa-hospital-o fa-2x"
+                                                            style="float:right; color:white"></i></p>
+                <hr>
+                <p><font color="white">Iglesias</font> <i class="fa fa-plus fa-2x" style="float:right; color:white"></i>
+                </p>
+            </div>
+            <div class="w3-container w3-third">
+                <h5 class="w3-bottombar border-orange"></h5>
+                <p><font color="white">Estaciones </font><i class="fa fa-bus fa-2x"
+                                                            style="float:right; color:white"></i></p>
+                <hr>
+                <p><font color="white">Cementerios</font> <i class="fa fa-plus fa-2x"
+                                                             style="float:right; color:white"></i></p>
+            </div>
+            <div class="w3-container w3-third">
+                <h5 class="w3-bottombar border-orange"></h5>
+                <p><font color="white">Universidades</font> <i class="fa fa-home fa-2x"
+                                                               style="float:right; color:white"></i></p>
+                <hr>
+                <p><font color="white">Colegios </font><i class="fa fa-graduation-cap fa-2x"
+                                                          style="float:right; color:white"></i></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- End page content -->
+</div>
+
+<script>
+    // Get the Sidebar
+    var mySidebar = document.getElementById("mySidebar");
+
+    // Get the DIV with overlay effect
+    var overlayBg = document.getElementById("myOverlay");
+
+    // Toggle between showing and hiding the sidebar, and add overlay effect
+    function w3_open() {
+        if (mySidebar.style.display === 'block') {
+            mySidebar.style.display = 'none';
+            overlayBg.style.display = "none";
+        } else {
+            mySidebar.style.display = 'block';
+            overlayBg.style.display = "block";
+        }
+    }
+
+    // Close the sidebar with the close button
+    function w3_close() {
+        mySidebar.style.display = "none";
+        overlayBg.style.display = "none";
+    }
+</script>
+
+</body>
+</html>
